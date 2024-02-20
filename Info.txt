@@ -1,0 +1,137 @@
+Docker/Containerization
+kubernetes
+AWS ASGs
+
+Backend Communication
+Docker/Containerization
+Isolated environments
+Remote code execution
+IDE system design/architecture
+
+kubernetes
+Pseudo Terminals
+Nix
+----------------------------------------------------------------------------
+3 approaches to solve this problem
+
+(1) Begineer Friendly - hackathon type approach
+- Great to build intution though
+- first principles back from clg(i didn't know what containers are, hackathon apporach)
+- highly insecure
+- if this approach used in interview - then rejected
+- Good to know whats happening
+- Doesn't scale very well 
+
+(2) Cloud Specific auto-scaling constructs
+- Mid approach
+- Great for a new startup
+- Secure , autoscales
+- Uses cloud dependent constructs(ASGs,ECS)
+
+(3) Cloud Native apporach - (GCP,AWS) - any cloud
+- Good approach
+- Autoscales,Secure
+- How i would built replit
+
+-----------------------------------------------------------------------------------
+### Thinking about this architecture
+
+## Reverse engineering repl.it 
+- going through the platform and monitoring all requests that are going out
+- explore their file system,explore the VIMs,see the process that are running, see the mounts that they have ,get the information how they are running internally
+- Going through blog posts, Github and videos on yt.
+- Nix now before it was docker
+- rustpty - rust based implementation of pseudo terminals
+
+- crosis - github repo - A js client that speaks replit's container protocol - this will give information regarding how their systems are working - this is client for taking to their systems, look at the api's of it , you can understand their system better.
+
+----------------------------------------------------------------------------------------
+### What am I building
+(1)Online IDE for long running frontend/backend apps
+- What i mean by long running?
+- When the users click run, it will keep running at will be hosted and gives access of shell where they can run command, it will keep running until the user doesn't clicks stop.
+(2) Ability to start a fresh environment (in rust,go,python,node,react...)
+(3) Ability to autoscale servers with users
+- giving resources access to users for a long time 
+- Autoscaling IDE is much harder than autoscaling social media app
+(4) Run code in an isolated environment
+- You have access of some machines of repl.it right now 
+- running commands in shell - ls, rm *, rm -r src -> deletes and cleans code
+- running extremely bad commands and we were able to see database secret like things therefore be sure its running in isolated environment
+
+--------------------------------EXPLORATION----------------------------------
+- Exploring replit
+- When we select any environment related to any language in create repl, it setups according to it
+- When we run that basic template code, you will see its running somewhere.
+- The files and all code you see is present on your browser as well and at some other machine too.
+- therefore i am accessing that machine , when you click on "new tab", you will see its running somewhere over the internet instead of localhost.
+- therefore the code you see on the repl.it is not running on the browser but its running over some other machine present in different location
+-----------------------------------------------------------------------------
+## What i am NOT building
+
+(1) Authentication(Login with Google)
+(2) Extremely Good UI
+
+Focus is on Online IDE for long running frontend/backend apps
+-------------------------------------------------------------------------------
+## Requirements
+
+User should be able to start a new environment in selected Stack.
+They click on create repl and are taken to coding environment.
+User should be able to edit the code,run the code and we should access it from the internet
+------------------------------------------------------------------------------
+3 approaches to solve the problem
+
+Callout - You can use an external service/codebase that does a lot for you.
+If you are an startup , you probably want to pick one of these services and not build from the scratch coder/code-server -> this allows vscode to run inside the browser
+
+--------------------------------------------------------------------------
+Begineer Friendly
+
+- just used to build intution on how you can build something like this 
+- Hackathon approach
+DOWNSIDE:-
+(1) Insecure Remote Code execution
+(2) Single server setup,doesn't autoscale
+(3) Port conflicts between two users(every user is sharing resources on the same server)
+- Network isolation leads to problem
+(4) Terminal is extremely rudimentary - not the optimized one 
+(5) very ugly package management - bringing boilerplate code's
+
+## Why is building it hard?
+(1) Remote Code Execution 
+- very scary to allow people all around the world to write some code and run them on our servers.
+- people try to exploit your server, running a GPU here,bitcoin mining,putting assets and files in your machines.
+
+## why not to run code locally on the machine? why to send this code to repl.it?
+- Your browser can't run C++/Go/React( Not Technically true)
+- It can run but for this use-case 1% will use web assembly to run this
+
+(2) Long running processes
+- server must run for long time untill you are on that page and you don't click on stop.
+
+(3) Shell access inside browser
+- inside browser you are letting user run command, also auto-complete, auto-suggestion
+
+(4) File storage 
+- fully fledged project
+- if you leave the project and come back again you must be able to see the project
+
+-----------------------------------------------------------------------------------
+## Achieving all of these one by one:-
+
+1 big monolith for this part.
+
+Monolith -> we have a single Nodejs process that is going to handle everything.
+
+Execution service:-
+(1) Keeping a copy of base projects in S3
+
+- we need a base code for every stack , react,rust,go..somewhere in objectStore.
+- Any file if you want to store on internet you store it in ObjectStore.
+- You don't store it in Database
+What is ObjectStore?- where we store mp4,jpg,.js,package.json 
+
+
+
+
